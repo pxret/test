@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+		<title></title>
+		<style>
+			body{overflow-x: hidden;margin: 0;font-size: 0px;}
+			div.page{position: absolute;width:130px;height: 400px;left:0;right: 0;top: 0;bottom: 0;margin: auto;}
+			div.page ul{margin: 0;padding: 0;list-style: none;}
+			div.page>ul>li{position: absolute;left: 0;top:0; box-shadow: 2px 2px 20px #000;width: 130px;height: 400px;transition: 1s;transform-origin: 25px 375px;}
+			#mycanvas{background: #000;}
+			div.nail{border-radius:100%;width: 25px;height: 25px;background: #858585;position: absolute;left:13px;top:363px;box-shadow: 0px 0px 1px #000;}
+			div.nail>div{width: 50%;height: 100%;border-right: 1px solid #b0b0b0;}
+		</style>
+	</head>
+	<body>
+		<div class='page'>
+			<ul>
+				<li style="background: #69D2E7;"></li>
+				<li style="background: #A7DBD8;"></li>
+				<li style="background: #E0E4CC;"></li>
+				<li style="background: #F38630;"></li>
+				<li style="background: #FA6900;"></li>
+				<li style="background: #FF4E50;"></li>
+				<li style="background: #F9D423;"></li>
+				<li style="background: #f8931f;"></li>
+				<li style="background: #8cc540;"></li>
+				<li style="background: #92278f;"></li>
+				<li style="background: #2b2762;"></li>
+				<li style="background: #f15928;"><div class="nail"><div></div></div></li>
+			</ul>
+			
+		</div>
+		<div><canvas id='mycanvas' width="" height=""></canvas></div>
+		<script type="text/javascript">
+			var list=document.getElementsByClassName('page')[0].children[0].children;
+			var click = true;//扇形按钮开关
+			list[list.length-1].onclick=function(){
+				for(var i=0;i<list.length;i++){
+					var n = Math.ceil(i-list.length/2);
+					n = click? (n*15):360;
+					list[i].style.transform='rotate('+n+'deg)';
+				}
+				click = !click;
+			}
+			for(var i = 0;i<list.length-1;i++){
+				list[i].index=i;
+				list[i].onclick=function(){
+					this.style.transform='rotate(0deg)';
+					var degnum = 0;
+					for(var j=this.index-1;j>=0;j--){
+						list[j].style.transform='rotate('+(degnum-=15)+'deg)';
+					}
+					degnum = 15;
+					for(var j=this.index+1;j<list.length;j++){
+						list[j].style.transform = 'rotate('+(degnum+=15)+'deg)';
+					}
+				}
+			}
+			var canvas = document.getElementById('mycanvas');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight+400;
+			var ctx = canvas.getContext('2d');
+			var balls=[];
+			var colors=['#69D2E7','#A7DBD8','#E0E4CC','#F38630','#FA6900','FF4E50','#F9D423'];
+			var on = true;//计时器开关
+			var timer;
+			canvas.onmousemove=function(e){
+				for(var i=0;i<2;i++){
+					var ball={
+						x:random(-5,5)+e.clientX,
+						y:random(-5,5)+e.clientY,
+						r:random(10,45),
+						vx:Math.random()-0.5,
+						vy:Math.random()-0.5,
+						color:colors[random(0,colors.length-1)]
+					};
+					balls.push(ball);
+				}
+				if(on){
+					timer = setInterval(drallBall,30);
+					on = false;
+				}
+				//drallBall();
+			};
+			function drallBall(){
+				ctx.clearRect(0,0,canvas.width,canvas.height);
+				for(var i=0;i<balls.length;i++){
+					balls[i].x +=balls[i].vx*7;
+					balls[i].y +=balls[i].vy*7;
+					balls[i].r *=0.95;
+					if(balls[i].r<1){
+						balls.splice(i,1);
+						continue;
+					}
+					draw(balls[i]);
+				}
+				if(!balls.length){
+					on=true;
+					clearInterval(timer);
+				}
+			}
+			function draw(ball){
+				ctx.beginPath();
+				ctx.arc(ball.x,ball.y,ball.r,0,2*Math.PI);
+				ctx.globalCompositeOperation='lighter';
+				ctx.fillStyle=ball.color;
+				ctx.fill();
+			}
+			function random(min,max){//取两数之间的随机数
+				return Math.round(Math.random()*(max-min)+min);
+			}
+		</script>
+	</body>
+</html>
